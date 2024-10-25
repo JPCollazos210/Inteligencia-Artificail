@@ -1,70 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Lógica Proposicional</title>
-  <link rel="stylesheet" href="../Parcial/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Lógica Proposicional</title>
+    <link rel="stylesheet" href="../Parcial/styles.css">
 </head>
+
 <body>
-  <div class="container">
-    <h1>Lógica Proposicional</h1>
+    <div class="container">
+        <h1>Lógica Proposicional</h1>
 
-    <h2>Clases principales</h2>
+        <h2>Clases principales</h2>
 
-    <h3>Clase <code>Sentence</code></h3>
-    <p>Es la clase base de la que heredan todas las demás representaciones lógicas (como símbolos y operadores). Tiene métodos abstractos que las clases derivadas deben implementar:</p>
-    <ul>
-      <li><code>evaluate(model)</code>: Evalúa la oración lógica en un modelo.</li>
-      <li><code>formula()</code>: Devuelve la fórmula lógica en forma de cadena.</li>
-      <li><code>symbols()</code>: Devuelve el conjunto de todos los símbolos presentes en la oración.</li>
-    </ul>
+        <h3>Clase <code>Sentence</code></h3>
+        <p>Es la clase base de la que heredan todas las demás representaciones lógicas (como símbolos y operadores).
+            Tiene métodos abstractos que las clases derivadas deben implementar:</p>
+        <ul>
+            <li><code>evaluate(model)</code>: Evalúa la oración lógica en un modelo.</li>
+            <li><code>formula()</code>: Devuelve la fórmula lógica en forma de cadena.</li>
+            <li><code>symbols()</code>: Devuelve el conjunto de todos los símbolos presentes en la oración.</li>
+        </ul>
 
-    <h3>Clase <code>Symbol</code></h3>
-    <p>Representa un símbolo lógico (por ejemplo, "P" o "Q"). Tiene los siguientes métodos:</p>
-    <ul>
-      <li><code>evaluate(model)</code>: Devuelve el valor de verdad del símbolo basado en el modelo dado.</li>
-      <li><code>formula()</code>: Devuelve el símbolo como una cadena.</li>
-      <li><code>symbols()</code>: Devuelve un conjunto que contiene solo este símbolo.</li>
-    </ul>
+        <h3>Clase <code>Symbol</code></h3>
+        <p>Representa un símbolo lógico (por ejemplo, "P" o "Q"). Tiene los siguientes métodos:</p>
+        <ul>
+            <li><code>evaluate(model)</code>: Devuelve el valor de verdad del símbolo basado en el modelo dado.</li>
+            <li><code>formula()</code>: Devuelve el símbolo como una cadena.</li>
+            <li><code>symbols()</code>: Devuelve un conjunto que contiene solo este símbolo.</li>
+        </ul>
 
-    <h3>Clase <code>Not</code></h3>
-    <p>Representa la negación lógica. Tiene un atributo <code>operand</code> (el operando que está siendo negado) y un método <code>evaluate()</code> que invierte el valor de verdad del operando.</p>
+        <h3>Clase <code>Not</code></h3>
+        <p>Representa la negación lógica. Tiene un atributo <code>operand</code> (el operando que está siendo negado) y
+            un método <code>evaluate()</code> que invierte el valor de verdad del operando.</p>
 
-    <h3>Clase <code>And</code></h3>
-    <p>Representa una conjunción lógica (Y). Tiene un conjunto de <code>conjuncts</code> (los operandos) y el método <code>evaluate()</code> que devuelve <code>True</code> si todos los operandos son verdaderos.</p>
+        <h3>Clase <code>And</code></h3>
+        <p>Representa una conjunción lógica (Y). Tiene un conjunto de <code>conjuncts</code> (los operandos) y el método
+            <code>evaluate()</code> que devuelve <code>True</code> si todos los operandos son verdaderos.</p>
 
-    <h3>Clase <code>Or</code></h3>
-    <p>Representa una disyunción lógica (O). Tiene un conjunto de <code>disjuncts</code> y el método <code>evaluate()</code> devuelve <code>True</code> si al menos uno de los operandos es verdadero.</p>
+        <h3>Clase <code>Or</code></h3>
+        <p>Representa una disyunción lógica (O). Tiene un conjunto de <code>disjuncts</code> y el método
+            <code>evaluate()</code> devuelve <code>True</code> si al menos uno de los operandos es verdadero.</p>
 
-    <h3>Clase <code>Implication</code></h3>
-    <p>Representa la implicación lógica (si... entonces...). Tiene un antecedente y un consecuente, y <code>evaluate()</code> devuelve <code>True</code> si el antecedente es falso o si el consecuente es verdadero (P → Q es falso solo cuando P es verdadero y Q es falso).</p>
+        <h3>Clase <code>Implication</code></h3>
+        <p>Representa la implicación lógica (si... entonces...). Tiene un antecedente y un consecuente, y
+            <code>evaluate()</code> devuelve <code>True</code> si el antecedente es falso o si el consecuente es
+            verdadero (P → Q es falso solo cuando P es verdadero y Q es falso).</p>
 
-    <h3>Clase <code>Biconditional</code></h3>
-    <p>Representa una bicondicional lógica (si y solo si). Evalúa si ambos lados de la bicondicional tienen el mismo valor de verdad (ambos verdaderos o ambos falsos).</p>
+        <h3>Clase <code>Biconditional</code></h3>
+        <p>Representa una bicondicional lógica (si y solo si). Evalúa si ambos lados de la bicondicional tienen el mismo
+            valor de verdad (ambos verdaderos o ambos falsos).</p>
 
-    <h2>Función <code>model_check(knowledge, query)</code></h2>
-    <p>Este es el núcleo de la lógica proposicional que verifica si una base de conocimiento (una serie de oraciones) implica una consulta (otra oración lógica).</p>
+        <h2>Función <code>model_check(knowledge, query)</code></h2>
+        <p>Este es el núcleo de la lógica proposicional que verifica si una base de conocimiento (una serie de
+            oraciones) implica una consulta (otra oración lógica).</p>
 
-    <h3>Función <code>check_all(knowledge, query, symbols, model)</code></h3>
-    <p>Verifica si la base de conocimiento implica la consulta en un modelo dado. Si el modelo tiene una asignación para cada símbolo, evalúa si el conocimiento es verdadero en ese modelo y si implica que la consulta también lo es.</p>
-    <ul>
-      <li>Si aún hay símbolos sin asignar, prueba con ambos valores (verdadero y falso) y verifica si la implicación se cumple en ambos modelos.</li>
-    </ul>
+        <h3>Función <code>check_all(knowledge, query, symbols, model)</code></h3>
+        <p>Verifica si la base de conocimiento implica la consulta en un modelo dado. Si el modelo tiene una asignación
+            para cada símbolo, evalúa si el conocimiento es verdadero en ese modelo y si implica que la consulta también
+            lo es.</p>
+        <ul>
+            <li>Si aún hay símbolos sin asignar, prueba con ambos valores (verdadero y falso) y verifica si la
+                implicación se cumple en ambos modelos.</li>
+        </ul>
 
-    <h3><code>symbols</code></h3>
-    <p>Extrae todos los símbolos presentes en la base de conocimiento y en la consulta para que puedan ser evaluados en el modelo.</p>
+        <h3><code>symbols</code></h3>
+        <p>Extrae todos los símbolos presentes en la base de conocimiento y en la consulta para que puedan ser evaluados
+            en el modelo.</p>
 
-    <h3><code>check_all()</code></h3>
-    <p>Se llama recursivamente para verificar todos los posibles modelos.</p>
+        <h3><code>check_all()</code></h3>
+        <p>Se llama recursivamente para verificar todos los posibles modelos.</p>
 
-    <h2>Propósito general del código</h2>
-    <p>Este código es útil en sistemas que trabajan con lógica proposicional, como en motores de inferencia o inteligencia artificial, donde se necesita verificar si ciertas condiciones lógicas implican una conclusión específica, basándose en un conjunto de reglas y hechos conocidos.</p>
-    
-    <h1>Código de Lógica Proposicional en Python</h1>
+        <h2>Propósito general del código</h2>
+        <p>Este código es útil en sistemas que trabajan con lógica proposicional, como en motores de inferencia o
+            inteligencia artificial, donde se necesita verificar si ciertas condiciones lógicas implican una conclusión
+            específica, basándose en un conjunto de reglas y hechos conocidos.</p>
 
-    <pre><code>
+        <h1>Código de Lógica Proposicional en Python</h1>
+
+        <pre><code>
 import itertools
 
 
@@ -391,6 +407,33 @@ def all_models(symbols):
     for values in itertools.product([False, True], repeat=len(symbols)):
         yield Model(**dict(zip(symbols, values)))
 </code></pre>
-</div>
+
+        <h1>Punto 6</h1>
+        <img src="../Inteligencia_Artificial/img/punto6.png" alt="Punto6">
+
+        <code>
+    <pre>
+        rain = False         # True si llueve, False si no
+bbc = False          # True si los estudiantes visitaron BBC
+unimayor = True      # True si los estudiantes visitaron Unimayor
+
+# Conocimiento:
+# Si no llueve, los estudiantes visitan BBC
+if not rain:
+    bbc = True
+
+# Los estudiantes visitaron BBC o Unimayor pero no ambos (XOR)
+bbc_unimayor = (bbc or unimayor) and not (bbc and unimayor)
+
+# Los estudiantes visitaron Unimayor
+unimayor = True  # Afirmación directa
+
+# Inferencia sobre BBC y el clima
+print("¿Los estudiantes visitaron BBC?", bbc)
+print("¿Llovió?", rain)
+    </pre>
+</code>
+    </div>
 </body>
+
 </html>
