@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Lógica Proposicional</title>
+  <link rel="stylesheet" href="../Parcial/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Lógica Proposicional</h1>
+
+    <h2>Clases principales</h2>
+
+    <h3>Clase <code>Sentence</code></h3>
+    <p>Es la clase base de la que heredan todas las demás representaciones lógicas (como símbolos y operadores). Tiene métodos abstractos que las clases derivadas deben implementar:</p>
+    <ul>
+      <li><code>evaluate(model)</code>: Evalúa la oración lógica en un modelo.</li>
+      <li><code>formula()</code>: Devuelve la fórmula lógica en forma de cadena.</li>
+      <li><code>symbols()</code>: Devuelve el conjunto de todos los símbolos presentes en la oración.</li>
+    </ul>
+
+    <h3>Clase <code>Symbol</code></h3>
+    <p>Representa un símbolo lógico (por ejemplo, "P" o "Q"). Tiene los siguientes métodos:</p>
+    <ul>
+      <li><code>evaluate(model)</code>: Devuelve el valor de verdad del símbolo basado en el modelo dado.</li>
+      <li><code>formula()</code>: Devuelve el símbolo como una cadena.</li>
+      <li><code>symbols()</code>: Devuelve un conjunto que contiene solo este símbolo.</li>
+    </ul>
+
+    <h3>Clase <code>Not</code></h3>
+    <p>Representa la negación lógica. Tiene un atributo <code>operand</code> (el operando que está siendo negado) y un método <code>evaluate()</code> que invierte el valor de verdad del operando.</p>
+
+    <h3>Clase <code>And</code></h3>
+    <p>Representa una conjunción lógica (Y). Tiene un conjunto de <code>conjuncts</code> (los operandos) y el método <code>evaluate()</code> que devuelve <code>True</code> si todos los operandos son verdaderos.</p>
+
+    <h3>Clase <code>Or</code></h3>
+    <p>Representa una disyunción lógica (O). Tiene un conjunto de <code>disjuncts</code> y el método <code>evaluate()</code> devuelve <code>True</code> si al menos uno de los operandos es verdadero.</p>
+
+    <h3>Clase <code>Implication</code></h3>
+    <p>Representa la implicación lógica (si... entonces...). Tiene un antecedente y un consecuente, y <code>evaluate()</code> devuelve <code>True</code> si el antecedente es falso o si el consecuente es verdadero (P → Q es falso solo cuando P es verdadero y Q es falso).</p>
+
+    <h3>Clase <code>Biconditional</code></h3>
+    <p>Representa una bicondicional lógica (si y solo si). Evalúa si ambos lados de la bicondicional tienen el mismo valor de verdad (ambos verdaderos o ambos falsos).</p>
+
+    <h2>Función <code>model_check(knowledge, query)</code></h2>
+    <p>Este es el núcleo de la lógica proposicional que verifica si una base de conocimiento (una serie de oraciones) implica una consulta (otra oración lógica).</p>
+
+    <h3>Función <code>check_all(knowledge, query, symbols, model)</code></h3>
+    <p>Verifica si la base de conocimiento implica la consulta en un modelo dado. Si el modelo tiene una asignación para cada símbolo, evalúa si el conocimiento es verdadero en ese modelo y si implica que la consulta también lo es.</p>
+    <ul>
+      <li>Si aún hay símbolos sin asignar, prueba con ambos valores (verdadero y falso) y verifica si la implicación se cumple en ambos modelos.</li>
+    </ul>
+
+    <h3><code>symbols</code></h3>
+    <p>Extrae todos los símbolos presentes en la base de conocimiento y en la consulta para que puedan ser evaluados en el modelo.</p>
+
+    <h3><code>check_all()</code></h3>
+    <p>Se llama recursivamente para verificar todos los posibles modelos.</p>
+
+    <h2>Propósito general del código</h2>
+    <p>Este código es útil en sistemas que trabajan con lógica proposicional, como en motores de inferencia o inteligencia artificial, donde se necesita verificar si ciertas condiciones lógicas implican una conclusión específica, basándose en un conjunto de reglas y hechos conocidos.</p>
+    
+    <h1>Código de Lógica Proposicional en Python</h1>
+
+    <pre><code>
+import itertools
+
+
+class Sentence():
+    """
+    Clase base para representar una oración lógica.
+    """
+
+    def evaluate(self, model):
+        """
+        Evalúa la oración lógica utilizando un modelo.
+        En este caso, es un método abstracto que será implementado en clases derivadas.
+        """
+        raise Exception("nada que evaluar")
+
+    def formula(self):
+        """
+        Devuelve una representación de la fórmula lógica en forma de cadena de texto.
+        """
+        return ""
+
+    def symbols(self):
+        """
+        Devuelve un conjunto de todos los símbolos presentes en la oración lógica.
+        """
+        return set()
+
+    @classmethod
+    def validate(cls, sentence):
+        """
+        Valida si un objeto es una instancia de la clase Sentence.
+        """
+        if not isinstance(sentence, Sentence):
+            raise TypeError("debe ser una oración lógica")
+
+    @classmethod
+    def parenthesize(cls, s):
+        """
+        Coloca paréntesis en una expresión si no los tiene ya.
+        """
+        def balanced(s):
+            """
+            Verifica si una cadena tiene paréntesis balanceados.
+            """
+            count = 0
+            for c in s:
+                if c == "(":
+                    count += 1
+                elif c == ")":
+                    if count <= 0:
+                        return False
+                    count -= 1
+            return count == 0
+
+        if not len(s) or s.isalpha() or (
+            s[0] == "(" and s[-1] == ")" and balanced(s[1:-1])
+        ):
+            return s
+        else:
+            return f"({s})"
+
+
+class Symbol(Sentence):
+    """
+    Representa un símbolo lógico.
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return isinstance(other, Symbol) and self.name == other.name
+
+    def __hash__(self):
+        return hash(("symbol", self.name))
+
+    def __repr__(self):
+        return self.name
+
+    def evaluate(self, model):
+        """
+        Evalúa el valor del símbolo en un modelo dado.
+        """
+        try:
+            return bool(model[self.name])
+        except KeyError:
+            raise EvaluationException(f"variable {self.name} no está en el modelo")
+
+    def formula(self):
+        return self.name
+
+    def symbols(self):
+        """
+        Devuelve el conjunto que contiene solo este símbolo.
+        """
+        return {self.name}
+
+
+class Not(Sentence):
+    """
+    Representa una negación lógica.
+    """
+    def __init__(self, operand):
+        Sentence.validate(operand)
+        self.operand = operand
+
+    def __eq__(self, other):
+        return isinstance(other, Not) and self.operand == other.operand
+
+    def __hash__(self):
+        return hash(("not", hash(self.operand)))
+
+    def __repr__(self):
+        return f"Not({self.operand})"
+
+    def evaluate(self, model):
+        """
+        Evalúa la negación, invirtiendo el valor del operando.
+        """
+        return not self.operand.evaluate(model)
+
+    def formula(self):
+        return "¬" + Sentence.parenthesize(self.operand.formula())
+
+    def symbols(self):
+        return self.operand.symbols()
+
+
+class And(Sentence):
+    """
+    Representa una conjunción lógica (Y).
+    """
+    def __init__(self, *conjuncts):
+        for conjunct in conjuncts:
+            Sentence.validate(conjunct)
+        self.conjuncts = list(conjuncts)
+
+    def __eq__(self, other):
+        return isinstance(other, And) and self.conjuncts == other.conjuncts
+
+    def __hash__(self):
+        return hash(
+            ("and", tuple(hash(conjunct) for conjunct in self.conjuncts))
+        )
+
+    def __repr__(self):
+        conjunctions = ", ".join(
+            [str(conjunct) for conjunct in self.conjuncts]
+        )
+        return f"And({conjunctions})"
+
+    def add(self, conjunct):
+        """
+        Añade un nuevo conjunción a la lista.
+        """
+        Sentence.validate(conjunct)
+        self.conjuncts.append(conjunct)
+
+    def evaluate(self, model):
+        """
+        Evalúa si todas las conjunciones son verdaderas.
+        """
+        return all(conjunct.evaluate(model) for conjunct in self.conjuncts)
+
+    def formula(self):
+        """
+        Devuelve la fórmula de la conjunción.
+        """
+        if len(self.conjuncts) == 1:
+            return self.conjuncts[0].formula()
+        return " ∧ ".join([Sentence.parenthesize(conjunct.formula())
+                           for conjunct in self.conjuncts])
+
+    def symbols(self):
+        return set.union(*[conjunct.symbols() for conjunct in self.conjuncts])
+
+
+class Or(Sentence):
+    """
+    Representa una disyunción lógica (O).
+    """
+    def __init__(self, *disjuncts):
+        for disjunct in disjuncts:
+            Sentence.validate(disjunct)
+        self.disjuncts = list(disjuncts)
+
+    def __eq__(self, other):
+        return isinstance(other, Or) and self.disjuncts == other.disjuncts
+
+    def __hash__(self):
+        return hash(
+            ("or", tuple(hash(disjunct) for disjunct in self.disjuncts))
+        )
+
+    def __repr__(self):
+        disjuncts = ", ".join([str(disjunct) for disjunct in self.disjuncts])
+        return f"Or({disjuncts})"
+
+    def evaluate(self, model):
+        """
+        Evalúa si al menos una de las disyunciones es verdadera.
+        """
+        return any(disjunct.evaluate(model) for disjunct in self.disjuncts)
+
+    def formula(self):
+        """
+        Devuelve la fórmula de la disyunción.
+        """
+        if len(self.disjuncts) == 1:
+            return self.disjuncts[0].formula()
+        return " ∨  ".join([Sentence.parenthesize(disjunct.formula())
+                            for disjunct in self.disjuncts])
+
+    def symbols(self):
+        return set.union(*[disjunct.symbols() for disjunct in self.disjuncts])
+
+
+class Implication(Sentence):
+    """
+    Representa una implicación lógica (si... entonces...).
+    """
+    def __init__(self, antecedent, consequent):
+        Sentence.validate(antecedent)
+        Sentence.validate(consequent)
+        self.antecedent = antecedent
+        self.consequent = consequent
+
+    def __eq__(self, other):
+        return (isinstance(other, Implication)
+                and self.antecedent == other.antecedent
+                and self.consequent == other.consequent)
+
+    def __hash__(self):
+        return hash(("implies", hash(self.antecedent), hash(self.consequent)))
+
+    def __repr__(self):
+        return f"Implication({self.antecedent}, {self.consequent})"
+
+    def evaluate(self, model):
+        """
+        Evalúa la implicación.
+        """
+        return ((not self.antecedent.evaluate(model))
+                or self.consequent.evaluate(model))
+
+    def formula(self):
+        antecedent = Sentence.parenthesize(self.antecedent.formula())
+        consequent = Sentence.parenthesize(self.consequent.formula())
+        return f"{antecedent} => {consequent}"
+
+    def symbols(self):
+        return set.union(self.antecedent.symbols(), self.consequent.symbols())
+
+
+class Biconditional(Sentence):
+    """
+    Representa una bicondicional lógica (si y solo si).
+    """
+    def __init__(self, left, right):
+        Sentence.validate(left)
+        Sentence.validate(right)
+        self.left = left
+        self.right = right
+
+    def __eq__(self, other):
+        return (isinstance(other, Biconditional)
+                and self.left == other.left
+                and self.right == other.right)
+
+    def __hash__(self):
+        return hash(("biconditional", hash(self.left), hash(self.right)))
+
+    def __repr__(self):
+        return f"Biconditional({self.left}, {self.right})"
+
+    def evaluate(self, model):
+        """
+        Evalúa si ambas proposiciones tienen el mismo valor de verdad.
+        """
+        return ((self.left.evaluate(model) == self.right.evaluate(model)))
+
+    def formula(self):
+        left = Sentence.parenthesize(self.left.formula())
+        right = Sentence.parenthesize(self.right.formula())
+        return f"{left} <=> {right}"
+
+    def symbols(self):
+        return set.union(self.left.symbols(), self.right.symbols())
+
+
+class EvaluationException(Exception):
+    """
+    Excepción para errores de evaluación de modelos.
+    """
+    pass
+
+
+class Model:
+    """
+    Clase para representar un modelo de evaluación.
+    """
+
+    def __init__(self, **kwargs):
+        self.values = kwargs
+
+    def __getitem__(self, item):
+        return self.values[item]
+
+    def __setitem__(self, key, value):
+        self.values[key] = value
+
+
+def model_check(sentence, model):
+    """
+    Verifica si una oración es verdadera en un modelo dado.
+    """
+    return sentence.evaluate(model)
+
+
+def all_models(symbols):
+    """
+    Genera todos los modelos posibles para un conjunto de símbolos.
+    """
+    for values in itertools.product([False, True], repeat=len(symbols)):
+        yield Model(**dict(zip(symbols, values)))
+</code></pre>
+</div>
+</body>
+</html>
